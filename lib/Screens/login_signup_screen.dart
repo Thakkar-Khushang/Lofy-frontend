@@ -1,17 +1,27 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:lofy_frontend/Components/loader.dart';
+import 'package:lofy_frontend/Screens/business_profile.dart';
 import 'package:lofy_frontend/Screens/home_page.dart';
+import 'package:lofy_frontend/utils/auth.utils.dart';
+import 'package:lofy_frontend/utils/error.utils.dart';
+import 'package:lofy_frontend/utils/http.utils.dart';
+import 'package:lofy_frontend/utils/navigator.dart';
+import 'package:lofy_frontend/utils/snackbar.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
-
+  const LoginScreen({Key? key, required this.userType}) : super(key: key);
+  final userType;
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
   bool isLoggingIn = true;
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -54,6 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         children: [
                           TextFormField(
+                            controller: _emailController,
                             decoration: InputDecoration(
                               labelText: 'Email',
                               labelStyle:
@@ -87,6 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Padding(
                             padding: const EdgeInsets.only(top: 8.0),
                             child: TextFormField(
+                              controller: _passwordController,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter a password';
@@ -120,8 +132,42 @@ class _LoginScreenState extends State<LoginScreen> {
                           Padding(
                             padding: const EdgeInsets.only(top: 32.0),
                             child: TextButton(
-                                onPressed: () {
-                                  if (_formKey.currentState!.validate()) {}
+                                onPressed: () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    try {
+                                      var body = {
+                                        "email": _emailController.text,
+                                        "password": _passwordController.text,
+                                      };
+                                      showLoader();
+                                      var resp = await postUnauth(
+                                          "${widget.userType == "Buyer" ? "customer" : "business"}/${isLoggingIn ? "login" : "signup"}",
+                                          jsonEncode(body));
+
+                                      await writeToken(resp['token']);
+                                      await writeUserType(widget.userType);
+
+                                      closeLoader();
+                                      
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  MyHomePage()),
+                                        );
+                                      
+                                    } on NotFoundException {
+                                      showSnackBar("User not registered");
+                                      setState(() {
+                                        isLoggingIn = false;
+                                      });
+                                      closeLoader();
+                                    } catch (e) {
+                                      closeLoader();
+                                      showSnackBar("Something went wrong");
+                                      debugPrint(e.toString());
+                                    }
+                                  }
                                 },
                                 style: TextButton.styleFrom(
                                   primary: Colors.white,

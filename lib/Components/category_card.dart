@@ -19,7 +19,7 @@ class CategoryCard extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 20.0),
-              child: Image.asset('assets/$category.png'),
+              child: Image.asset('assets/${category.toLowerCase()}.png'),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 18.0),

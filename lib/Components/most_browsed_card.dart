@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class MostBrowsedCard extends StatelessWidget {
-  const MostBrowsedCard({Key? key, required this.category}) : super(key: key);
-  final category;
+  const MostBrowsedCard({Key? key, required this.business}) : super(key: key);
+  final business;
 
   @override
   Widget build(BuildContext context) {
@@ -27,11 +27,11 @@ class MostBrowsedCard extends StatelessWidget {
               children: [
                 Image.asset('assets/Organization.png', height: 200),
                 Text(
-                  "Organization",
+                  business["name"],
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                 ),
                 Text(
-                  category,
+                  business["category"],
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
               ],
@@ -39,7 +39,9 @@ class MostBrowsedCard extends StatelessWidget {
             Positioned(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Image.asset('assets/$category.png', height: 50),
+                child: Image.asset(
+                    'assets/${business["category"].toLowerCase()}.png',
+                    height: 50),
               ),
             )
           ])),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lofy_frontend/Screens/login_signup_screen.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -71,7 +72,14 @@ class LandingPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 32.0),
                 child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginScreen(userType: "Buyer"),
+                        ),
+                      );
+                    },
                     style: TextButton.styleFrom(
                       primary: Colors.white,
                       backgroundColor: Colors.black,
@@ -86,7 +94,14 @@ class LandingPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 23.0),
                 child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginScreen(userType: "Seller"),
+                        ),
+                      );
+                    },
                     style: TextButton.styleFrom(
                       primary: Colors.white,
                       backgroundColor: Colors.black,
