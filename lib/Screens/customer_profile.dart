@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lofy_frontend/Components/customer_navigation_bar.dart';
 import 'package:lofy_frontend/Components/error_page.dart';
 import 'package:lofy_frontend/Components/loader.dart';
+import 'package:lofy_frontend/utils/auth.utils.dart';
 import 'package:lofy_frontend/utils/http.utils.dart';
 import 'package:lofy_frontend/utils/snackbar.dart';
 
@@ -451,6 +452,24 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                                       child: Text("Save")),
                                 )
                               : Container(),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 20.0),
+                            child: ElevatedButton(
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.black),
+                                  foregroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.white),
+                                ),
+                                onPressed: () async {
+                                  
+                                  await logOut();
+                                },
+                                child: Text("Log Out")),
+                          )
                         ])),
         ));
   }

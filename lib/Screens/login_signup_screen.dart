@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:lofy_frontend/Components/loader.dart';
+import 'package:lofy_frontend/Screens/address_input.dart';
 import 'package:lofy_frontend/Screens/business_profile.dart';
 import 'package:lofy_frontend/Screens/home_page.dart';
 import 'package:lofy_frontend/utils/auth.utils.dart';
@@ -148,14 +149,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                       await writeUserType(widget.userType);
 
                                       closeLoader();
-                                      
+
+                                      if (!isLoggingIn) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  AddressInputScreen()),
+                                        );
+                                      } else {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   MyHomePage()),
                                         );
-                                      
+                                      }
                                     } on NotFoundException {
                                       showSnackBar("User not registered");
                                       setState(() {

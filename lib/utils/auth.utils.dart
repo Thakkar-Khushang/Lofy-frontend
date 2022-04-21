@@ -65,6 +65,6 @@ Future<void> logOut({String? screenName, bool unauthorized = false}) async {
   await Navigator.push(
       NavigatorService.navigatorKey.currentContext!,
       MaterialPageRoute(
-          builder: (newContext) => LandingPage(),
-          settings: RouteSettings(name: '/')));
+        builder: (newContext) => LandingPage(),
+      ));
 }
