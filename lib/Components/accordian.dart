@@ -64,7 +64,7 @@ class _AccordionState extends State<Accordion> {
       );
     }
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.only(top: 20.0, left: 20, right: 20),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
