@@ -2,13 +2,15 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:lofy_frontend/Components/loader.dart';
+import 'package:lofy_frontend/Screens/business_profile.dart';
 import 'package:lofy_frontend/Screens/home_page.dart';
 import 'package:lofy_frontend/utils/http.utils.dart';
 import 'package:lofy_frontend/utils/navigator.dart';
 import 'package:lofy_frontend/utils/snackbar.dart';
 
 class AddressInputScreen extends StatefulWidget {
-  AddressInputScreen({Key? key}) : super(key: key);
+  AddressInputScreen({Key? key, required this.userType}) : super(key: key);
+  final userType;
 
   @override
   State<AddressInputScreen> createState() => _AddressInputScreenState();
@@ -191,12 +193,15 @@ class _AddressInputScreenState extends State<AddressInputScreen> {
                       try {
                         showLoader();
                         var resp = await patchAuth(
-                            "customer/update-profile", jsonEncode(body));
+                            "${widget.userType == "Buyer" ? "customer" : "business"}/update-profile",
+                            jsonEncode(body));
                         showSnackBar(resp['message']);
                         closeLoader();
                         if (resp['message'] ==
-                            'Customer updated successfully') {
-                          pushReplaceWithoutAnimation(MyHomePage());
+                            '${widget.userType == "Buyer" ? "Customer" : "Business"} updated successfully') {
+                          pushReplaceWithoutAnimation(widget.userType == "Buyer"
+                              ? MyHomePage()
+                              : BusinessProfileScreen());
                         }
                       } catch (e) {
                         closeLoader();

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lofy_frontend/Components/accordian.dart';
 import 'package:lofy_frontend/Components/customer_navigation_bar.dart';
+import 'package:lofy_frontend/Components/error_page.dart';
+import 'package:lofy_frontend/Components/loader.dart';
+import 'package:lofy_frontend/utils/http.utils.dart';
+import 'package:lofy_frontend/utils/snackbar.dart';
 
 class CustomerOrdersScreen extends StatefulWidget {
   CustomerOrdersScreen({Key? key}) : super(key: key);
@@ -10,6 +14,37 @@ class CustomerOrdersScreen extends StatefulWidget {
 }
 
 class _CustomerOrdersScreenState extends State<CustomerOrdersScreen> {
+  var orders;
+  bool _isLoading = true;
+  bool hasError = false;
+  List<Widget> _orderList = [];
+
+  void initOrders() async {
+    try {
+      orders = (await getAuth("customer/get-orders"))['orders'];
+      for (var order in orders) {
+        _orderList.add(
+          Accordion(
+            order: order,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        hasError = true;
+      });
+    }
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initOrders();
+  }
+
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
@@ -29,15 +64,10 @@ class _CustomerOrdersScreenState extends State<CustomerOrdersScreen> {
         ),
         body: SizedBox(
             width: screenSize.width,
-            child: ListView(children: [
-              Accordion(order: {
-                "business_name": "Organization Name",
-                "products": [
-                  {"name": "Product 1", "price": "100", "quantity": "1"},
-                  {"name": "Product 2", "price": "200", "quantity": "2"},
-                  {"name": "Product 3", "price": "300", "quantity": "3"},
-                ]
-              })
-            ])));
+            child: _isLoading
+                ? PageLoader()
+                : hasError
+                    ? ErrorComponent()
+                    : ListView(children: [..._orderList])));
   }
 }

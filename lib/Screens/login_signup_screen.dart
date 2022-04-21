@@ -155,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  AddressInputScreen()),
+                                                  AddressInputScreen(userType: widget.userType)),
                                         );
                                       } else {
                                         Navigator.push(

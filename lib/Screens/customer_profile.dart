@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lofy_frontend/Components/customer_navigation_bar.dart';
 import 'package:lofy_frontend/Components/error_page.dart';
 import 'package:lofy_frontend/Components/loader.dart';
+import 'package:lofy_frontend/Screens/customer_orders.dart';
 import 'package:lofy_frontend/utils/auth.utils.dart';
 import 'package:lofy_frontend/utils/http.utils.dart';
 import 'package:lofy_frontend/utils/snackbar.dart';
@@ -74,7 +75,14 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
             : FloatingActionButton.extended(
                 backgroundColor: Colors.black,
                 label: Text('My Orders'),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CustomerOrdersScreen(),
+                    ),
+                  );
+                },
               ),
         bottomNavigationBar: CustomerNavBar(
           index: 2,
@@ -465,7 +473,6 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                                           Colors.white),
                                 ),
                                 onPressed: () async {
-                                  
                                   await logOut();
                                 },
                                 child: Text("Log Out")),
