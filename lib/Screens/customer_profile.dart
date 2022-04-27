@@ -22,6 +22,8 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
   bool hasError = false;
   var profile;
 
+  final _formKey = GlobalKey<FormState>();
+
   TextEditingController _nameController = TextEditingController();
   TextEditingController addressline1Controller = TextEditingController();
   TextEditingController addressline2Controller = TextEditingController();
@@ -39,12 +41,18 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
       if (profile['phone'] != null) {
         _phoneController.text = profile['phone'];
       }
+      addressline1Controller.text = profile['address']['line1'];
+      addressline2Controller.text = profile['address']['line2'];
+      cityController.text = profile['address']['city'];
+      stateController.text = profile['address']['state'];
+      pincodeController.text = profile['address']['zip'];
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         hasError = true;
       });
     }
-
+    if (!mounted) return;
     setState(() {
       isLoading = false;
     });
@@ -63,12 +71,7 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
         appBar: AppBar(
           backgroundColor: Colors.black,
           title: Text("Hi User!"),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+          automaticallyImplyLeading: false,
         ),
         floatingActionButton: isLoading || hasError
             ? null
@@ -94,111 +97,85 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                   ? PageLoader()
                   : hasError
                       ? ErrorComponent()
-                      : ListView(children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                top: 28.0, left: 35, right: 35),
-                            child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "My Profile:",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          isEditing = !isEditing;
-                                        });
-                                      },
-                                      icon:
-                                          Icon(Icons.edit, color: Colors.black))
-                                ]),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Image.asset(
-                              "assets/person.png",
-                              height: 200,
-                            ),
-                          ),
-                          isEditing
-                              ? Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20.0),
-                                  child: TextField(
-                                    controller: _nameController,
-                                    decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        labelText: "Name"),
-                                  ),
-                                )
-                              : Center(
-                                  child: Text(
-                                    profile['name'] ?? "Please enter a name",
-                                    style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 20.0, bottom: 17, top: 20),
-                            child: Text("Address:",
-                                style: TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.w600)),
-                          ),
-                          false
-                              ? Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 20.0, bottom: 17, right: 20),
-                                  child: Column(
-                                    children: [
-                                      TextFormField(
-                                        controller: addressline1Controller,
-                                        obscureText: false,
-                                        validator: (value) {
-                                          if (value == null) {
-                                            return 'Please enter this field';
-                                          }
-                                          return null;
+                      : Form(
+                          key: _formKey,
+                          child: ListView(children: [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 28.0, left: 35, right: 35),
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "My Profile:",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    IconButton(
+                                        onPressed: () {
+                                          if (!mounted) return;
+                                          setState(() {
+                                            isEditing = !isEditing;
+                                          });
                                         },
-                                        decoration: InputDecoration(
-                                          labelText: 'Address line 1',
-                                          hintStyle: TextStyle(
-                                            color: Colors.grey,
-                                          ),
-                                          labelStyle: TextStyle(
-                                              fontSize: 18,
-                                              color: Colors.black),
-                                          fillColor: Color.fromARGB(
-                                              255, 250, 250, 250),
-                                          filled: true,
-                                          focusedBorder: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Colors.black,
-                                                width: 2.0),
-                                            borderRadius:
-                                                BorderRadius.circular(15.0),
-                                          ),
+                                        icon: Icon(Icons.edit,
+                                            color: Colors.black))
+                                  ]),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Image.asset(
+                                "assets/person.png",
+                                height: 200,
+                              ),
+                            ),
+                            isEditing
+                                ? Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20.0),
+                                    child: TextFormField(
+                                      controller: _nameController,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter this field';
+                                        }
+                                        return null;
+                                      },
+                                      decoration: InputDecoration(
                                           border: OutlineInputBorder(
                                             borderRadius:
-                                                BorderRadius.circular(15),
+                                                BorderRadius.circular(10),
                                           ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(top: 10.0),
-                                        child: TextFormField(
-                                          controller: addressline2Controller,
+                                          labelText: "Name"),
+                                    ),
+                                  )
+                                : Center(
+                                    child: Text(
+                                      profile['name'] ?? "Please enter a name",
+                                      style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 20.0, bottom: 17, top: 20),
+                              child: Text("Address:",
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600)),
+                            ),
+                            isEditing
+                                ? Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 20.0, bottom: 17, right: 20),
+                                    child: Column(
+                                      children: [
+                                        TextFormField(
+                                          controller: addressline1Controller,
                                           obscureText: false,
                                           validator: (value) {
                                             if (value == null) {
@@ -207,7 +184,7 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                                             return null;
                                           },
                                           decoration: InputDecoration(
-                                            labelText: 'Address line 2',
+                                            labelText: 'Address line 1',
                                             hintStyle: TextStyle(
                                               color: Colors.grey,
                                             ),
@@ -230,254 +207,321 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          top: 10.0,
-                                        ),
-                                        child: TextFormField(
-                                          obscureText: false,
-                                          controller: cityController,
-                                          validator: (value) {
-                                            if (value == null) {
-                                              return 'Please enter a city';
-                                            }
-                                            return null;
-                                          },
-                                          decoration: InputDecoration(
-                                            labelText: 'City',
-                                            hintStyle: TextStyle(
-                                              color: Colors.grey,
-                                            ),
-                                            labelStyle: TextStyle(
-                                                fontSize: 18,
-                                                color: Colors.black),
-                                            fillColor: Color.fromARGB(
-                                                255, 250, 250, 250),
-                                            filled: true,
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 2.0),
-                                              borderRadius:
-                                                  BorderRadius.circular(15.0),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(top: 10.0),
-                                        child: TextFormField(
-                                          controller: stateController,
-                                          validator: (value) {
-                                            if (value == null) {
-                                              return 'Please enter a state';
-                                            }
-                                            return null;
-                                          },
-                                          decoration: InputDecoration(
-                                            labelText: 'State',
-                                            hintStyle: TextStyle(
-                                              color: Colors.grey,
-                                            ),
-                                            labelStyle: TextStyle(
-                                                fontSize: 18,
-                                                color: Colors.black),
-                                            fillColor: Color.fromARGB(
-                                                255, 250, 250, 250),
-                                            filled: true,
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 2.0),
-                                              borderRadius:
-                                                  BorderRadius.circular(15.0),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 10.0),
+                                          child: TextFormField(
+                                            controller: addressline2Controller,
+                                            obscureText: false,
+                                            validator: (value) {
+                                              if (value == null) {
+                                                return 'Please enter this field';
+                                              }
+                                              return null;
+                                            },
+                                            decoration: InputDecoration(
+                                              labelText: 'Address line 2',
+                                              hintStyle: TextStyle(
+                                                color: Colors.grey,
+                                              ),
+                                              labelStyle: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.black),
+                                              fillColor: Color.fromARGB(
+                                                  255, 250, 250, 250),
+                                              filled: true,
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 2.0),
+                                                borderRadius:
+                                                    BorderRadius.circular(15.0),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(top: 10.0),
-                                        child: TextFormField(
-                                          controller: pincodeController,
-                                          obscureText: false,
-                                          validator: (value) {
-                                            if (value == null) {
-                                              return 'Please enter a pincode';
-                                            }
-                                            return null;
-                                          },
-                                          decoration: InputDecoration(
-                                            labelText: 'Pincode',
-                                            hintStyle: TextStyle(
-                                              color: Colors.grey,
-                                            ),
-                                            labelStyle: TextStyle(
-                                                fontSize: 18,
-                                                color: Colors.black),
-                                            fillColor: Color.fromARGB(
-                                                255, 250, 250, 250),
-                                            filled: true,
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 2.0),
-                                              borderRadius:
-                                                  BorderRadius.circular(15.0),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 10.0,
+                                          ),
+                                          child: TextFormField(
+                                            obscureText: false,
+                                            controller: cityController,
+                                            validator: (value) {
+                                              if (value == null) {
+                                                return 'Please enter a city';
+                                              }
+                                              return null;
+                                            },
+                                            decoration: InputDecoration(
+                                              labelText: 'City',
+                                              hintStyle: TextStyle(
+                                                color: Colors.grey,
+                                              ),
+                                              labelStyle: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.black),
+                                              fillColor: Color.fromARGB(
+                                                  255, 250, 250, 250),
+                                              filled: true,
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 2.0),
+                                                borderRadius:
+                                                    BorderRadius.circular(15.0),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              ),
                                             ),
                                           ),
                                         ),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 10.0),
+                                          child: TextFormField(
+                                            controller: stateController,
+                                            validator: (value) {
+                                              if (value == null) {
+                                                return 'Please enter a state';
+                                              }
+                                              return null;
+                                            },
+                                            decoration: InputDecoration(
+                                              labelText: 'State',
+                                              hintStyle: TextStyle(
+                                                color: Colors.grey,
+                                              ),
+                                              labelStyle: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.black),
+                                              fillColor: Color.fromARGB(
+                                                  255, 250, 250, 250),
+                                              filled: true,
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 2.0),
+                                                borderRadius:
+                                                    BorderRadius.circular(15.0),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 10.0),
+                                          child: TextFormField(
+                                            controller: pincodeController,
+                                            obscureText: false,
+                                            validator: (value) {
+                                              if (value == null) {
+                                                return 'Please enter a pincode';
+                                              }
+                                              return null;
+                                            },
+                                            decoration: InputDecoration(
+                                              labelText: 'Pincode',
+                                              hintStyle: TextStyle(
+                                                color: Colors.grey,
+                                              ),
+                                              labelStyle: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.black),
+                                              fillColor: Color.fromARGB(
+                                                  255, 250, 250, 250),
+                                              filled: true,
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 2.0),
+                                                borderRadius:
+                                                    BorderRadius.circular(15.0),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 20.0, bottom: 17, right: 20),
+                                    child: Text(
+                                      profile['address']['line1'] +
+                                          ", " +
+                                          profile['address']['line2'] +
+                                          ", " +
+                                          profile['address']['city'] +
+                                          ", " +
+                                          profile['address']['state'] +
+                                          " - " +
+                                          profile['address']['zip'],
+                                      style: TextStyle(
+                                        fontSize: 18,
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                )
-                              : Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 20.0, bottom: 17, right: 20),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 20.0, bottom: 17),
+                              child: Text("Contact Details:",
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600)),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 20.0, bottom: 17, right: 20),
+                              child: isEditing
+                                  ? TextFormField(
+                                      controller: _phoneController,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter this field';
+                                        }
+                                        return null;
+                                      },
+                                      decoration: InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          labelText: "Phone Number"),
+                                    )
+                                  : Row(children: [
+                                      Text(
+                                        "Number:",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 10.0),
+                                        child: Text(
+                                          profile['phone'] ??
+                                              "Please enter a phone number",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    ]),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 20.0, bottom: 17, right: 20),
+                              child: Row(children: [
+                                Text(
+                                  "Email:",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 10.0),
                                   child: Text(
-                                    profile['address'] ??
-                                        "Please enter an address",
+                                    profile['email'],
                                     style: TextStyle(
                                       fontSize: 18,
                                     ),
                                   ),
                                 ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 20.0, bottom: 17),
-                            child: Text("Contact Details:",
-                                style: TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.w600)),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 20.0, bottom: 17, right: 20),
-                            child: isEditing
-                                ? TextField(
-                                    controller: _phoneController,
-                                    decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                              ]),
+                            ),
+                            isEditing
+                                ? Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20.0),
+                                    child: ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Colors.black),
+                                          foregroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Colors.white),
                                         ),
-                                        labelText: "Phone Number"),
-                                  )
-                                : Row(children: [
-                                    Text(
-                                      "Number:",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 10.0),
-                                      child: Text(
-                                        profile['phone'] ??
-                                            "Please enter a phone number",
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ]),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 20.0, bottom: 17, right: 20),
-                            child: Row(children: [
-                              Text(
-                                "Email:",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 10.0),
-                                child: Text(
-                                  profile['email'],
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
-                            ]),
-                          ),
-                          isEditing
-                              ? Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20.0),
-                                  child: ElevatedButton(
-                                      style: ButtonStyle(
-                                        backgroundColor:
-                                            MaterialStateProperty.all<Color>(
-                                                Colors.black),
-                                        foregroundColor:
-                                            MaterialStateProperty.all<Color>(
-                                                Colors.white),
-                                      ),
-                                      onPressed: () async {
-                                        var body = {
-                                          "name": _nameController.text,
-                                          "phone": _phoneController.text,
-                                        };
-                                        try {
-                                          var resp = await patchAuth(
-                                              "customer/update-profile",
-                                              jsonEncode(body));
-                                          if (resp['message'] ==
-                                              "Customer updated successfully") {
-                                            setState(() {
-                                              isEditing = false;
-                                              profile['name'] =
-                                                  _nameController.text;
-                                              profile['phone'] =
-                                                  _phoneController.text;
-                                            });
-                                            showSnackBar(
-                                                "Profile updated successfully");
+                                        onPressed: () async {
+                                          if (_formKey.currentState!
+                                              .validate()) {
+                                            var body = {
+                                              "name": _nameController.text,
+                                              "phone": _phoneController.text,
+                                              "address": {
+                                                "line1":
+                                                    addressline1Controller.text,
+                                                "line2":
+                                                    addressline2Controller.text,
+                                                "city": cityController.text,
+                                                "state": stateController.text,
+                                                "zip": pincodeController.text,
+                                              }
+                                            };
+                                            try {
+                                              showLoader();
+                                              var resp = await patchAuth(
+                                                  "customer/update-profile",
+                                                  jsonEncode(body));
+                                              if (resp['message'] ==
+                                                  "Customer updated successfully") {
+                                                if (!mounted) return;
+                                                setState(() {
+                                                  isEditing = false;
+                                                  profile['name'] =
+                                                      _nameController.text;
+                                                  profile['phone'] =
+                                                      _phoneController.text;
+                                                });
+                                                closeLoader();
+                                                showSnackBar(
+                                                    "Profile updated successfully");
+                                              }
+                                            } catch (e) {
+                                              showSnackBar(e.toString());
+                                              closeLoader();
+                                            }
                                           }
-                                        } catch (e) {
-                                          showSnackBar(e.toString());
-                                        }
-                                      },
-                                      child: Text("Save")),
-                                )
-                              : Container(),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: ElevatedButton(
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Colors.black),
-                                  foregroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Colors.white),
-                                ),
-                                onPressed: () async {
-                                  await logOut();
-                                },
-                                child: Text("Log Out")),
-                          )
-                        ])),
+                                        },
+                                        child: Text("Save")),
+                                  )
+                                : Container(),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20.0),
+                              child: ElevatedButton(
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            Colors.black),
+                                    foregroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            Colors.white),
+                                  ),
+                                  onPressed: () async {
+                                    await logOut();
+                                  },
+                                  child: Text("Log Out")),
+                            )
+                          ]),
+                        )),
         ));
   }
 }

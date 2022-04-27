@@ -20,7 +20,6 @@ class _ProductScreenState extends State<ProductScreen> {
   @override
   void initState() {
     super.initState();
-    print("Wtf");
     bool entered = false;
     for (var review in widget.product['reviews']) {
       entered = true;
@@ -53,7 +52,6 @@ class _ProductScreenState extends State<ProductScreen> {
           label: Text('Add to Cart'),
           onPressed: () async {
             SharedPreferences prefs = await SharedPreferences.getInstance();
-            await prefs.clear();
             dynamic cart = prefs.get("cart");
             if (cart == null) {
               cart = {

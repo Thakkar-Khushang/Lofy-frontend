@@ -1,18 +1,31 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:lofy_frontend/Components/loader.dart';
 import 'dart:math' as math;
+
+import 'package:lofy_frontend/utils/http.utils.dart';
+import 'package:lofy_frontend/utils/snackbar.dart';
 
 class BusinessAccordion extends StatefulWidget {
   final order;
-  final index;
+  final id;
 
-  BusinessAccordion({required this.order, required this.index});
+  BusinessAccordion({required this.order, required this.id});
   @override
   _AccordionState createState() => _AccordionState();
 }
 
 class _AccordionState extends State<BusinessAccordion> {
   bool _showContent = false;
-  String? status = "Order sent to vendor";
+  String? status;
+
+  @override
+  void initState() {
+    status = widget.order['status'];
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Widget> items = [];
@@ -66,7 +79,7 @@ class _AccordionState extends State<BusinessAccordion> {
       );
     }
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.only(left: 20.0, right: 20, top: 15),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
@@ -74,7 +87,7 @@ class _AccordionState extends State<BusinessAccordion> {
         ),
         child: Column(children: [
           ListTile(
-            title: Text("Order ${widget.index}",
+            title: Text("Order ${widget.id}",
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 17,
@@ -117,7 +130,7 @@ class _AccordionState extends State<BusinessAccordion> {
                             child: Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  "Address: ${widget.order['address']}",
+                                  "Address: ${widget.order['address']['line1'] + ", " + widget.order['address']['line2'] + ", " + widget.order['address']['city'] + ", " + widget.order['address']['state'] + " - " + widget.order['address']['zip']}",
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 17,
@@ -146,7 +159,22 @@ class _AccordionState extends State<BusinessAccordion> {
                               height: 2,
                               color: Colors.black,
                             ),
-                            onChanged: (String? newValue) {
+                            onChanged: (String? newValue) async {
+                              try {
+                                showLoader();
+                                var body = {
+                                  "status": newValue,
+                                  "orderId": widget.order['_id'],
+                                };
+                                var resp = await patchAuth(
+                                    "business/order/status", jsonEncode(body));
+                                showSnackBar(resp['message']);
+                                closeLoader();
+                              } catch (e) {
+                                print(e);
+                                closeLoader();
+                              }
+                              if (!mounted) return;
                               setState(() {
                                 status = newValue;
                               });

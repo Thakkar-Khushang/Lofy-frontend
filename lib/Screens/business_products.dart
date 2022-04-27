@@ -27,12 +27,17 @@ class _BusinessProductsScreenState extends State<BusinessProductsScreen> {
           product: product,
         ));
       }
+      if (products.isEmpty) {
+        productWidgets.add(Center(child: Text("No products added yet")));
+      }
     } catch (e) {
       print(e);
+       if (!mounted) return;
       setState(() {
         hasError = true;
       });
     }
+     if (!mounted) return;
     setState(() {
       isLoading = false;
     });

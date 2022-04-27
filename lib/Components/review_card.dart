@@ -36,7 +36,7 @@ class ReviewCard extends StatelessWidget {
                     child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          user,
+                          user ?? "Anonymous User",
                           style: TextStyle(
                               color: Colors.black,
                               fontSize: 16,

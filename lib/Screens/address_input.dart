@@ -52,6 +52,12 @@ class _AddressInputScreenState extends State<AddressInputScreen> {
                 child: TextFormField(
                   obscureText: false,
                   controller: _addressline1Controller,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter this field';
+                    }
+                    return null;
+                  },
                   decoration: InputDecoration(
                     labelText: 'Address line 1',
                     hintStyle: TextStyle(
@@ -76,6 +82,12 @@ class _AddressInputScreenState extends State<AddressInputScreen> {
                 child: TextFormField(
                   obscureText: false,
                   controller: _addressline2Controller,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter this field';
+                    }
+                    return null;
+                  },
                   decoration: InputDecoration(
                     labelText: 'Address line 2',
                     hintStyle: TextStyle(
@@ -100,6 +112,12 @@ class _AddressInputScreenState extends State<AddressInputScreen> {
                 child: TextFormField(
                   obscureText: false,
                   controller: _cityController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter this field';
+                    }
+                    return null;
+                  },
                   decoration: InputDecoration(
                     labelText: 'City',
                     hintStyle: TextStyle(
@@ -124,6 +142,12 @@ class _AddressInputScreenState extends State<AddressInputScreen> {
                 child: TextFormField(
                   obscureText: false,
                   controller: _stateController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter this field';
+                    }
+                    return null;
+                  },
                   decoration: InputDecoration(
                     labelText: 'State',
                     hintStyle: TextStyle(
@@ -148,6 +172,12 @@ class _AddressInputScreenState extends State<AddressInputScreen> {
                 child: TextFormField(
                   obscureText: false,
                   controller: _pincodeController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter this field';
+                    }
+                    return null;
+                  },
                   decoration: InputDecoration(
                     labelText: 'Pincode',
                     hintStyle: TextStyle(
@@ -177,35 +207,35 @@ class _AddressInputScreenState extends State<AddressInputScreen> {
                         foregroundColor:
                             MaterialStateProperty.all(Colors.white)),
                     onPressed: () async {
-                      String address = _addressline1Controller.text +
-                          ', ' +
-                          _addressline2Controller.text +
-                          ', ' +
-                          _cityController.text +
-                          ', ' +
-                          _stateController.text +
-                          ' - ' +
-                          _pincodeController.text;
-                      var body = {
-                        'address': address,
-                        'city': _cityController.text,
-                      };
-                      try {
-                        showLoader();
-                        var resp = await patchAuth(
-                            "${widget.userType == "Buyer" ? "customer" : "business"}/update-profile",
-                            jsonEncode(body));
-                        showSnackBar(resp['message']);
-                        closeLoader();
-                        if (resp['message'] ==
-                            '${widget.userType == "Buyer" ? "Customer" : "Business"} updated successfully') {
-                          pushReplaceWithoutAnimation(widget.userType == "Buyer"
-                              ? MyHomePage()
-                              : BusinessProfileScreen());
+                      if (_formKey.currentState!.validate()) {
+                        var address = {
+                          "line1": _addressline1Controller.text,
+                          "line2": _addressline2Controller.text,
+                          "city": _cityController.text,
+                          "state": _stateController.text,
+                          "zip": _pincodeController.text
+                        };
+                        var body = {
+                          'address': address,
+                        };
+                        try {
+                          showLoader();
+                          var resp = await patchAuth(
+                              "${widget.userType == "Buyer" ? "customer" : "business"}/update-profile",
+                              jsonEncode(body));
+                          showSnackBar(resp['message']);
+                          closeLoader();
+                          if (resp['message'] ==
+                              '${widget.userType == "Buyer" ? "Customer" : "Business"} updated successfully') {
+                            pushReplaceWithoutAnimation(
+                                widget.userType == "Buyer"
+                                    ? MyHomePage()
+                                    : BusinessProfileScreen());
+                          }
+                        } catch (e) {
+                          closeLoader();
+                          showSnackBar(e.toString());
                         }
-                      } catch (e) {
-                        closeLoader();
-                        showSnackBar(e.toString());
                       }
                     },
                     child: Text(

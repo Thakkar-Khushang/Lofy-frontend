@@ -3,6 +3,7 @@ import 'package:lofy_frontend/Components/accordian.dart';
 import 'package:lofy_frontend/Components/customer_navigation_bar.dart';
 import 'package:lofy_frontend/Components/error_page.dart';
 import 'package:lofy_frontend/Components/loader.dart';
+import 'package:lofy_frontend/utils/error.utils.dart';
 import 'package:lofy_frontend/utils/http.utils.dart';
 import 'package:lofy_frontend/utils/snackbar.dart';
 
@@ -29,11 +30,26 @@ class _CustomerOrdersScreenState extends State<CustomerOrdersScreen> {
           ),
         );
       }
+    } on NotFoundException {
+      _orderList.add(Padding(
+        padding: const EdgeInsets.all(50.0),
+        child: Center(
+          child: Text(
+            "No Orders have been placed",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ));
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         hasError = true;
       });
     }
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
     });
@@ -68,6 +84,6 @@ class _CustomerOrdersScreenState extends State<CustomerOrdersScreen> {
                 ? PageLoader()
                 : hasError
                     ? ErrorComponent()
-                    : ListView(children: [..._orderList])));
+                    : ListView(children: [..._orderList.reversed])));
   }
 }

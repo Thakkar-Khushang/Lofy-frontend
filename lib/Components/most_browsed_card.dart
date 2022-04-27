@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class MostBrowsedCard extends StatelessWidget {
@@ -27,7 +26,7 @@ class MostBrowsedCard extends StatelessWidget {
               children: [
                 Image.asset('assets/Organization.png', height: 200),
                 Text(
-                  business["name"],
+                  business["name"] ?? "Organization Name",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                 ),
                 Text(

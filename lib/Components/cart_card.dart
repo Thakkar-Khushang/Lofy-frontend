@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 typedef void ChangeQuantity(int index, int quantity);
+typedef void Delete(int index);
 
 class CartCard extends StatefulWidget {
   CartCard(
@@ -8,12 +9,14 @@ class CartCard extends StatefulWidget {
       required this.product,
       required this.quantity,
       required this.index,
-      required this.changeQuantity})
+      required this.changeQuantity,
+      required this.delete})
       : super(key: key);
   final product;
   final quantity;
   final index;
   final ChangeQuantity changeQuantity;
+  final Delete delete;
 
   @override
   State<CartCard> createState() => _CartCardState();
@@ -94,7 +97,15 @@ class _CartCardState extends State<CartCard> {
                                 widget.index, widget.quantity + 1);
                           },
                         ),
-                      ])
+                      ]),
+                      TextButton(
+                          onPressed: () {
+                            widget.delete(widget.index);
+                          },
+                          child: Text(
+                            "Delete Product",
+                            style: TextStyle(fontSize: 14, color: Colors.black),
+                          ))
                     ],
                   ),
                 ),

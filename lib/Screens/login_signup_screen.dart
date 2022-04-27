@@ -144,36 +144,46 @@ class _LoginScreenState extends State<LoginScreen> {
                                       var resp = await postUnauth(
                                           "${widget.userType == "Buyer" ? "customer" : "business"}/${isLoggingIn ? "login" : "signup"}",
                                           jsonEncode(body));
-
-                                      await writeToken(resp['token']);
-                                      await writeUserType(widget.userType);
-
+                                      showSnackBar(resp['message']);
                                       closeLoader();
-
-                                      if (!isLoggingIn) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  AddressInputScreen(userType: widget.userType)),
-                                        );
-                                      } else {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  MyHomePage()),
-                                        );
+                                      if (isLoggingIn) {
+                                        await writeToken(resp['token']);
+                                        await writeUserType(widget.userType);
+                                        if (resp[widget.userType == "Seller"
+                                                ? "business"
+                                                : "customer"]['address'] ==
+                                            null) {
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    AddressInputScreen(
+                                                      userType: widget.userType,
+                                                    )),
+                                          );
+                                        } else {
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => widget
+                                                            .userType ==
+                                                        "Buyer"
+                                                    ? MyHomePage()
+                                                    : BusinessProfileScreen()),
+                                          );
+                                        }
                                       }
                                     } on NotFoundException {
                                       showSnackBar("User not registered");
+                                       if (!mounted) return;
                                       setState(() {
                                         isLoggingIn = false;
                                       });
                                       closeLoader();
                                     } catch (e) {
                                       closeLoader();
-                                      showSnackBar("Something went wrong");
+                                      showSnackBar(
+                                          jsonDecode(e.toString())['message']);
                                       debugPrint(e.toString());
                                     }
                                   }
@@ -209,9 +219,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 25.0, bottom: 25),
+                  padding: const EdgeInsets.only(top: 25.0, bottom: 15),
                   child: TextButton(
                       onPressed: () {
+                         if (!mounted) return;
                         setState(() {
                           isLoggingIn = !isLoggingIn;
                         });
@@ -229,6 +240,35 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(isLoggingIn ? "Sign up" : "Log in",
                           style: TextStyle(fontSize: 20))),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10.0),
+                  child: TextButton(
+                      onPressed: () async {
+                        if (_emailController.text.isNotEmpty ||
+                            _emailController.text.trim() != "") {
+                          showLoader();
+                          try {
+                            var resp = await postUnauth(
+                                "${widget.userType == "Seller" ? "business" : "customer"}/send-email",
+                                jsonEncode({
+                                  "email": _emailController.text,
+                                }));
+                            showSnackBar(resp['message']);
+                          } catch (e) {
+                            showSnackBar("Something went wrong");
+                            closeLoader();
+                          }
+                          closeLoader();
+                        } else {
+                          showSnackBar("The email field cannot be empty");
+                        }
+                      },
+                      child: Text("Resend verification email",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                          ))),
+                )
               ],
             ),
           )

@@ -24,12 +24,13 @@ class _MyCartScreenState extends State<MyCartScreen> {
   List<Widget> cartWidgets = <Widget>[];
   dynamic cart;
 
-  void changeQuantity(int index, int quantity) async {
+  void deleteProduct(int index) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     cart = prefs.get("cart");
     cart = jsonDecode(cart);
-    cart['products'][index]['quantity'] = quantity;
+    cart['products'].removeAt(index);
     prefs.setString("cart", json.encode(cart));
+    if (!mounted) return;
     setState(() {
       cartWidgets = <Widget>[];
       for (int i = 0; i < cart['products'].length; i++) {
@@ -37,7 +38,34 @@ class _MyCartScreenState extends State<MyCartScreen> {
             product: cart['products'][i]['product'],
             quantity: cart['products'][i]['quantity'],
             index: i,
-            changeQuantity: changeQuantity));
+            changeQuantity: changeQuantity,
+            delete: deleteProduct));
+      }
+      if (cart['products'].length == 0) {
+        cart = null;
+        prefs.remove("cart");
+        emptyCart = true;
+      }
+    });
+  }
+
+  void changeQuantity(int index, int quantity) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    cart = prefs.get("cart");
+    cart = jsonDecode(cart);
+    cart['products'][index]['quantity'] = quantity;
+    prefs.setString("cart", json.encode(cart));
+    if (!mounted) return;
+    setState(() {
+      cartWidgets = <Widget>[];
+      for (int i = 0; i < cart['products'].length; i++) {
+        cartWidgets.add(CartCard(
+          product: cart['products'][i]['product'],
+          quantity: cart['products'][i]['quantity'],
+          index: i,
+          changeQuantity: changeQuantity,
+          delete: deleteProduct,
+        ));
       }
     });
   }
@@ -46,6 +74,7 @@ class _MyCartScreenState extends State<MyCartScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     cart = prefs.get("cart");
     if (cart == null) {
+      if (!mounted) return;
       setState(() {
         emptyCart = true;
       });
@@ -57,12 +86,15 @@ class _MyCartScreenState extends State<MyCartScreen> {
             product: cart['products'][i]['product'],
             quantity: cart['products'][i]['quantity'],
             index: i,
-            changeQuantity: changeQuantity));
+            changeQuantity: changeQuantity,
+            delete: deleteProduct));
       }
+      if (!mounted) return;
       setState(() {
         loading = false;
       });
     }
+    if (!mounted) return;
     setState(() {
       loading = false;
     });
@@ -74,17 +106,21 @@ class _MyCartScreenState extends State<MyCartScreen> {
       order['products'][i].remove('product');
     }
     try {
+      showLoader();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var resp = await postAuth("customer/place-order", jsonEncode(order));
       showSnackBar(resp['message']);
       if (resp['message'] == "Order placed successfully") {
+        closeLoader();
         await prefs.remove("cart");
+        if (!mounted) return;
         setState(() {
           orderPlaced = true;
           emptyCart = true;
         });
       }
     } catch (e) {
+      closeLoader();
       showSnackBar("Something went wrong");
     }
   }

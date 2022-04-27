@@ -28,6 +28,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
       business = resp['business'];
     } catch (e) {
       print(e);
+       if (!mounted) return;
       setState(() {
         hasError = true;
       });
@@ -35,7 +36,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
     for (var product in products) {
       productWidgets.add(ProductCard(product: product));
     }
-
+     if (!mounted) return;
     setState(() {
       loading = false;
     });
@@ -161,7 +162,16 @@ class _BusinessScreenState extends State<BusinessScreen> {
                                     ? Padding(
                                         padding: const EdgeInsets.only(
                                             left: 20.0, bottom: 17),
-                                        child: Text(business['address'],
+                                        child: Text(
+                                            business['address']['line1'] +
+                                                ", " +
+                                                business['address']['line2'] +
+                                                ", " +
+                                                business['address']['city'] +
+                                                ", " +
+                                                business['address']['state'] +
+                                                " - " +
+                                                business['address']['zip'],
                                             style: TextStyle(
                                               fontSize: 18,
                                             )),
